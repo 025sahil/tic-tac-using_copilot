@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tic-Tac-Toe</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      background: #f5f4ed;
+      color: #23322d;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    main {
+      width: min(100%, 360px);
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 2rem;
+    }
+
+    #status {
+      min-height: 1.5em;
+      margin: 0 0 20px;
+      color: #52655c;
+      font-size: 1.05rem;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      aspect-ratio: 1;
+    }
+
+    .cell {
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 6px;
+      background: #fff;
+      color: #23322d;
+      font: inherit;
+      font-size: 3.5rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .cell:hover:empty { background: #e8ece4; }
+    .cell:focus-visible, #reset:focus-visible { outline: 3px solid #d27a45; outline-offset: 3px; }
+    .cell.x { color: #347b68; }
+    .cell.o { color: #d27a45; }
+
+    #reset {
+      margin-top: 20px;
+      padding: 10px 18px;
+      border: 0;
+      border-radius: 5px;
+      background: #23322d;
+      color: #fff;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    #reset:hover { background: #40544b; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Tic-Tac-Toe</h1>
+    <p id="status" aria-live="polite">Player X's turn</p>
+    <div class="board" role="grid" aria-label="Tic-tac-toe board">
+      <button class="cell" role="gridcell" aria-label="Row 1, column 1"></button>
+      <button class="cell" role="gridcell" aria-label="Row 1, column 2"></button>
+      <button class="cell" role="gridcell" aria-label="Row 1, column 3"></button>
+      <button class="cell" role="gridcell" aria-label="Row 2, column 1"></button>
+      <button class="cell" role="gridcell" aria-label="Row 2, column 2"></button>
+      <button class="cell" role="gridcell" aria-label="Row 2, column 3"></button>
+      <button class="cell" role="gridcell" aria-label="Row 3, column 1"></button>
+      <button class="cell" role="gridcell" aria-label="Row 3, column 2"></button>
+      <button class="cell" role="gridcell" aria-label="Row 3, column 3"></button>
+    </div>
+    <button id="reset" type="button">New game</button>
+  </main>
+  <script>
+    const cells = [...document.querySelectorAll('.cell')];
+    const status = document.querySelector('#status');
+    const winningLines = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6]
+    ];
+    let currentPlayer = 'X';
+    let gameOver = false;
+
+    function play(index) {
+      if (gameOver || cells[index].textContent) return;
+
+      cells[index].textContent = currentPlayer;
+      cells[index].classList.add(currentPlayer.toLowerCase());
+      cells[index].setAttribute('aria-label', `${cells[index].getAttribute('aria-label')}, ${currentPlayer}`);
+
+      const hasWon = winningLines.some(line => line.every(cell => cells[cell].textContent === currentPlayer));
+      if (hasWon) {
+        status.textContent = `Player ${currentPlayer} wins!`;
+        gameOver = true;
+      } else if (cells.every(cell => cell.textContent)) {
+        status.textContent = "It's a draw!";
+        gameOver = true;
+      } else {
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        status.textContent = `Player ${currentPlayer}'s turn`;
+      }
+    }
+
+    cells.forEach((cell, index) => cell.addEventListener('click', () => play(index)));
+    document.querySelector('#reset').addEventListener('click', () => {
+      cells.forEach((cell, index) => {
+        cell.textContent = '';
+        cell.classList.remove('x', 'o');
+        cell.setAttribute('aria-label', `Row ${Math.floor(index / 3) + 1}, column ${(index % 3) + 1}`);
+      });
+      currentPlayer = 'X';
+      gameOver = false;
+      status.textContent = "Player X's turn";
+    });
+  </script>
+</body>
+</html>
